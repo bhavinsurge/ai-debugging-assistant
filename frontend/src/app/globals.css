@@ -1,0 +1,37 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #0f1c1a;
+  --moss: #1f4d45;
+  --signal: #c45c26;
+  --mist: #e8f0ee;
+  --paper: #f7faf8;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "Source Sans 3", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 500px at 10% -10%, rgba(31, 77, 69, 0.14), transparent 60%),
+    radial-gradient(900px 400px at 90% 0%, rgba(196, 92, 38, 0.1), transparent 55%),
+    linear-gradient(180deg, #f7faf8 0%, #eef5f2 100%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+}
+
+.grid-noise {
+  background-image:
+    linear-gradient(rgba(31, 77, 69, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 77, 69, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
