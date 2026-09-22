@@ -1,0 +1,70 @@
+[
+  {
+    "id": "eval-bad-checkout-deploy",
+    "title": "Checkout 500s after deploy",
+    "symptom": "checkout-api returning 500 errors on /checkout with NullPointerException in PaymentClient after recent deploy",
+    "service": "checkout-api",
+    "environment": "production",
+    "expected_root_cause_keywords": ["v2.14.0", "PaymentClient", "NullPointer", "deploy"],
+    "expected_evidence_tools": ["search_logs", "get_recent_deployments", "search_previous_incidents"],
+    "forbidden_false_causes": ["redis stampede", "OutOfMemory", "batch_size"],
+    "min_confidence": 0.7
+  },
+  {
+    "id": "eval-db-pool",
+    "title": "Order worker DB timeouts",
+    "symptom": "order-worker failing with HikariPool connection pool exhausted and too many connections to postgres",
+    "service": "order-worker",
+    "environment": "production",
+    "expected_root_cause_keywords": ["pool", "connection", "postgres"],
+    "expected_evidence_tools": ["search_logs", "get_metrics", "search_runbooks"],
+    "forbidden_false_causes": ["PaymentClient", "cache stampede"],
+    "min_confidence": 0.7
+  },
+  {
+    "id": "eval-payments-cascade",
+    "title": "Payments dependency cascade",
+    "symptom": "checkout failing because payment-gateway upstream 503 and circuit breaker open with dependency timeout",
+    "service": "checkout-api",
+    "environment": "production",
+    "expected_root_cause_keywords": ["payment-gateway", "503", "circuit"],
+    "expected_evidence_tools": ["search_logs", "get_service_dependencies", "get_metrics"],
+    "forbidden_false_causes": ["NullPointerException in PaymentClient v2.14.0", "batch_size"],
+    "min_confidence": 0.7
+  },
+  {
+    "id": "eval-redis-stampede",
+    "title": "Catalog latency from Redis",
+    "symptom": "catalog-api latency spike with Redis read timed out and cache stampede / cache miss storm",
+    "service": "catalog-api",
+    "environment": "production",
+    "expected_root_cause_keywords": ["redis", "stampede", "cache"],
+    "expected_evidence_tools": ["search_logs", "get_metrics", "search_runbooks"],
+    "forbidden_false_causes": ["PaymentClient", "HikariPool"],
+    "min_confidence": 0.65
+  },
+  {
+    "id": "eval-oom-flag",
+    "title": "Worker OOM after flag",
+    "symptom": "order-worker OutOfMemoryError heap exhaustion after feature flag batch_size increase",
+    "service": "order-worker",
+    "environment": "production",
+    "expected_root_cause_keywords": ["batch_size", "memory", "heap", "OOM"],
+    "expected_evidence_tools": ["search_logs", "get_recent_deployments", "search_runbooks"],
+    "forbidden_false_causes": ["payment-gateway 503", "cache stampede"],
+    "min_confidence": 0.65
+  },
+  {
+    "id": "eval-insufficient-evidence",
+    "title": "Vague unrelated symptom",
+    "symptom": "users report the sky looks slightly more blue today near the office window",
+    "service": "checkout-api",
+    "environment": "production",
+    "expected_root_cause_keywords": [],
+    "expected_evidence_tools": ["search_logs"],
+    "forbidden_false_causes": [],
+    "min_confidence": 0.0,
+    "expect_low_confidence": true,
+    "max_confidence": 0.55
+  }
+]
