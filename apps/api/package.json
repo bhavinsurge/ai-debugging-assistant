@@ -1,0 +1,17 @@
+{
+  "name": "@rootcause/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "python:install": "python3 -m venv .venv && .venv/bin/pip install -r requirements.txt",
+    "dev": ".venv/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8009",
+    "start": ".venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8009",
+    "migrate": ".venv/bin/python scripts/migrate.py",
+    "seed": ".venv/bin/python scripts/seed.py",
+    "test": ".venv/bin/pytest -q",
+    "eval": ".venv/bin/python scripts/eval.py",
+    "lint": "echo 'Python lint: use ruff/mypy locally if configured'",
+    "typecheck": "echo 'Python typecheck: use mypy locally if configured'",
+    "build": "echo 'FastAPI has no compile step'"
+  }
+}

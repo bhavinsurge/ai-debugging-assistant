@@ -1,37 +1,28 @@
-# Python
-.venv/
-__pycache__/
-*.py[cod]
-.pytest_cache/
-.mypy_cache/
-*.egg-info/
-.coverage
-htmlcov/
-
-# Env / secrets
+# RootCause
 .env
-backend/.env
-frontend/.env.local
-!.env.example
-!backend/.env.example
-!frontend/.env.example
-
-# Node
-frontend/node_modules/
-frontend/.next/
-frontend/test-results/
-frontend/playwright-report/
-
-# OS / IDE
+.env.local
+**/.env
+**/.env.local
+**/.next/
+**/node_modules/
+**/.venv/
+**/__pycache__/
+**/*.pyc
+.pytest_cache
+test-results
+playwright-report
 .DS_Store
-.idea/
-.vscode/
-*.swp
-
-# Local artifacts
+*.egg-info
+.venv
+venv
+.turbo
+dist
+coverage
 *.log
-.cache/
-tmp/
-frontend/tsconfig.tsbuildinfo
-backend/data/eval/last_results.json
-
+apps/web/package-lock.json
+package-lock.json
+pnpm-lock.yaml
+apps/api/data/eval/last_results.json
+!.env.example
+!apps/api/.env.example
+!apps/web/.env.example

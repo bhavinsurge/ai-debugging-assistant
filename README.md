@@ -4,21 +4,30 @@
 
 RootCause is an evidence-bound AI software debugging and root-cause assistant. It is **not** a chatbot toy: every important conclusion must cite retrieved evidence from tools and RAG.
 
-## Problem
+## Architecture
 
-On-call engineers drown in logs, metrics, deploys, and tribal runbooks. Generic LLM chat invents plausible-sounding causes. RootCause forces a tool → evidence → hypothesis loop with confidence and next investigation steps.
+Yarn Workspaces + Turborepo monorepo. Python/FastAPI hosts auth, investigations, RAG, tools, and the LLM provider (NestJS is intentionally not used). AI stays inside `apps/api` — the investigation pipeline is one FastAPI process, not a separate runtime.
 
-## Stack (free / local only)
+```
+apps/
+  web/         # Next.js console (frontend only; /api proxied to FastAPI)
+  api/         # FastAPI: auth + investigations + RAG + tools + LLM
+infrastructure/
+  docker-compose.yml   # Postgres (pgvector) + Redis
+  docker/
+packages/              # No Prisma; SQL migrations live with api
+docs/
+```
 
-| Layer | Choice |
-| --- | --- |
-| Frontend | Next.js + TypeScript (:3009) |
-| API | Python FastAPI (:8009) |
-| DB | PostgreSQL + pgvector (:5439) |
-| Cache | Redis (:6384) |
-| LLM | `LLM_PROVIDER=mock` (default) or `ollama` (Qwen / compatible) |
-
-**No paid AI APIs.**
+```mermaid
+flowchart LR
+  UI[Next.js :3009] -->|rewrite /api| API[FastAPI :8009]
+  API --> PG[(Postgres+pgvector :5439)]
+  API --> Redis[(Redis :6384)]
+  API --> Tools[Tool layer]
+  API --> RAG[Embedding + retrieval]
+  API --> LLM{MockLLM or Ollama}
+```
 
 ## Ports
 
@@ -34,29 +43,37 @@ On-call engineers drown in logs, metrics, deploys, and tribal runbooks. Generic 
 
 ```bash
 cd 05-ai-debugging-assistant
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env.local
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env.local
 
-docker compose up -d
+yarn install
+yarn python:install
+yarn infra:up
 
-cd backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python scripts/migrate.py --with-test
-python scripts/seed.py --with-test
+yarn db:migrate
+yarn db:seed
 
-uvicorn app.main:app --host 0.0.0.0 --port 8009 --app-dir .
-
-# other terminal
-cd frontend
-npm install
-npm run dev
+# terminals (or yarn dev for both):
+yarn api:dev
+yarn web:dev
 ```
 
-- UI: http://localhost:3009  
-- API docs: http://localhost:8009/docs  
+- UI: http://localhost:3009
+- API docs: http://localhost:8009/docs
 - Demo: `admin@rootcause.local` / `Password123!`
+
+## Scripts
+
+| Command | Purpose |
+| --- | --- |
+| `yarn infra:up` | Start Postgres (pgvector) + Redis |
+| `yarn python:install` | Create API venv + install deps |
+| `yarn db:migrate` / `yarn db:seed` | Schema + seed data |
+| `yarn dev` | Web + API |
+| `yarn test` | API unit/integration (pytest) |
+| `yarn eval` | Evaluation harness (`scripts/eval.py`) |
+| `yarn build` | Build workspaces (web Next.js) |
+| `yarn lint` / `yarn typecheck` | Frontend quality gates |
 
 ## LLM providers
 
@@ -70,7 +87,7 @@ OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=qwen2.5:7b
 ```
 
-Install Ollama, pull a model (`ollama pull qwen2.5:7b`), set `LLM_PROVIDER=ollama`, restart the API. If Ollama is down, the API falls back to MockLLM automatically.
+**No paid AI APIs.** If Ollama is down, the API falls back to MockLLM automatically.
 
 ## Tools
 
@@ -81,21 +98,9 @@ Install Ollama, pull a model (`ollama pull qwen2.5:7b`), set `LLM_PROVIDER=ollam
 - `search_previous_incidents()`
 - `search_runbooks()`
 
-## Tests & evaluation
+## Package manager
 
-```bash
-cd backend && source .venv/bin/activate
-pytest tests/unit -q
-pytest tests/integration -q
-python scripts/eval.py
-
-cd ../frontend
-npm run lint && npm run typecheck && npm run build
-```
-
-## Database safety
-
-Only `rootcause` / `rootcause_test` databases are used. Scripts refuse other DB names.
+**Yarn only** (`yarn.lock`). Do not use npm or pnpm for this repo.
 
 ## Docs
 

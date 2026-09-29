@@ -1,4 +1,5 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8009";
+// Empty default = same-origin /api rewrite to FastAPI (see next.config.ts).
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 const TOKEN_KEY = "rootcause_token";
 
 export type ApiResult<T> = {

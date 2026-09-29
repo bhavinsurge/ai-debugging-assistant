@@ -1,0 +1,37 @@
+{
+  "name": "rootcause",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev --parallel --filter=@rootcause/web --filter=@rootcause/api",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test --filter=@rootcause/api",
+    "test:e2e": "yarn workspace @rootcause/web test:e2e",
+    "eval": "yarn workspace @rootcause/api eval",
+    "api:dev": "yarn workspace @rootcause/api dev",
+    "api:start": "yarn workspace @rootcause/api start",
+    "web:dev": "yarn workspace @rootcause/web dev",
+    "web:build": "yarn workspace @rootcause/web build",
+    "db:migrate": "yarn workspace @rootcause/api migrate",
+    "db:seed": "yarn workspace @rootcause/api seed",
+    "python:install": "yarn workspace @rootcause/api python:install",
+    "infra:up": "docker compose -f infrastructure/docker-compose.yml up -d",
+    "infra:down": "docker compose -f infrastructure/docker-compose.yml down",
+    "infra:ps": "docker compose -f infrastructure/docker-compose.yml ps"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.8",
+    "turbo": "^2.5.4",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "yarn@1.22.22"
+}

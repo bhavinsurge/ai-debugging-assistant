@@ -2,10 +2,11 @@
 
 ```text
 Project: RootCause — AI Debugging & Root-Cause Assistant
-Status: COMPLETE — completion gate passed
+Status: COMPLETE — completion gate passed (monorepo migration)
 
-Architecture: FastAPI investigation API + Next.js console + PostgreSQL/pgvector RAG
-  + Redis tool-cache + MockLLM (default) / optional Ollama
+Architecture: Yarn/Turbo monorepo — apps/web (Next.js) + apps/api (FastAPI)
+  investigations + RAG + tools + MockLLM/Ollama in one FastAPI process (no apps/ai)
+  PostgreSQL/pgvector + Redis via infrastructure/docker-compose.yml
 Database: PostgreSQL 16 + pgvector via Docker (host :5439), DBs rootcause / rootcause_test only
 Backend: Python FastAPI tools, RAG embeddings, evidence-bound investigation pipeline
 Frontend: RootCause console (Fraunces + Source Sans 3 + IBM Plex Mono; moss/signal light UI)
@@ -22,8 +23,8 @@ Major features:
 Authentication: bcrypt passwords + JWT Bearer (cookie optional)
 Authorization: authenticated engineer/admin access to investigations
 
-Testing: Unit 6/6, Integration 3/3, Eval 6/6 gate_pass=true;
-  frontend lint + typecheck + production build succeeded
+Testing: Unit+integration pytest via yarn test (9 passed), Eval 6/6 gate_pass=true;
+  yarn lint + typecheck + build succeeded
 
 Eval aggregates (MockLLM):
   root_cause_identification: 0.958
@@ -35,7 +36,7 @@ Eval aggregates (MockLLM):
 
 Security: CORS to UI origin; Pydantic validation; rootcause_* DB guard; evidence ID sanitize
 Performance: Redis caches log searches; HNSW vector index on chunks
-Deployment: Docker Compose for PG+Redis; uvicorn + Next on host; free/local only
+Deployment: yarn infra:up for PG+Redis; yarn api:dev + yarn web:dev; free/local only
 
 Known limitations:
 - Default MockLLM is signature-based (deterministic) — not a general LLM
@@ -49,25 +50,25 @@ Important engineering decisions:
 - Evidence-first pipeline with sanitize rail regardless of LLM provider
 - Controlled incident seed aligned with eval dataset
 - Safety scripts refuse non-rootcause databases
+- Yarn only; Next.js same-origin /api rewrite to FastAPI; AI kept in apps/api
 
-Files created: under 05-ai-debugging-assistant/ (docs, docker, backend, frontend)
+Files created: under 05-ai-debugging-assistant/ (apps/, infrastructure/, packages/, docs/)
 
 How to run locally:
   cd 05-ai-debugging-assistant
-  cp backend/.env.example backend/.env
-  cp frontend/.env.example frontend/.env.local
-  docker compose up -d
-  cd backend && python3 -m venv .venv && source .venv/bin/activate
-  pip install -r requirements.txt
-  python scripts/migrate.py --with-test && python scripts/seed.py --with-test
-  uvicorn app.main:app --host 0.0.0.0 --port 8009 --app-dir .
-  cd ../frontend && npm install && npm run dev   # http://localhost:3009
+  cp apps/api/.env.example apps/api/.env
+  cp apps/web/.env.example apps/web/.env.local
+  yarn install && yarn python:install && yarn infra:up
+  yarn db:migrate && yarn db:seed
+  (cd apps/api && .venv/bin/python scripts/migrate.py --with-test && .venv/bin/python scripts/seed.py --with-test)
+  yarn api:dev
+  yarn web:dev   # http://localhost:3009
 
 Demo login: admin@rootcause.local / Password123!
 
 How to run tests:
-  cd backend && pytest tests/unit -q && pytest tests/integration -q && python scripts/eval.py
-  cd frontend && npm run lint && npm run typecheck && npm run build
+  yarn test && yarn eval
+  yarn lint && yarn typecheck && yarn build
 
 How to deploy:
   See docs/deployment.md — Compose + host processes; optional Ollama on :11434.

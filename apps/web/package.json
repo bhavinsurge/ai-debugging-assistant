@@ -1,5 +1,5 @@
 {
-  "name": "rootcause-frontend",
+  "name": "@rootcause/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {

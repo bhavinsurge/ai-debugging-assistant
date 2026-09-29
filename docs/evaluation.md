@@ -1,6 +1,6 @@
 # Evaluation
 
-Controlled incident dataset: `backend/data/eval/incidents.json`.
+Controlled incident dataset: `apps/api/data/eval/incidents.json`.
 
 ## Metrics
 
@@ -20,11 +20,11 @@ Controlled incident dataset: `backend/data/eval/incidents.json`.
 ## Run
 
 ```bash
-cd backend && source .venv/bin/activate
-python scripts/eval.py
+yarn eval
+# or: yarn workspace @rootcause/api eval
 ```
 
-Results written to `backend/data/eval/last_results.json`.
+Results written to `apps/api/data/eval/last_results.json` (gitignored).
 
 ## Cases
 
